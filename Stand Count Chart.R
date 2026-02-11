@@ -50,3 +50,11 @@ ggplot(mean_data, aes(x = Variety, y = Stand, fill = Variety)) +
     "#FF99DD",  
     "#FFC1E3"   
   ))
+Stand Line Plot below 
+ggplot(my_data, aes(x = Temperature, y = Hectares, group = 1)) +
+  geom_line(linewidth = 1, color = "#990000") +
+  geom_point(size = 0.8, color = "#990000") +
+  theme_classic() +
+  scale_y_continuous(labels = scales::label_number(big.mark = ",")) +
+  labs(x = "Minimum Temperature Recorded Prior to Stand Count Assessment(°C)",
+       y = "Cummulative Stand Count(plants/hectares)")
