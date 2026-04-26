@@ -1,0 +1,51 @@
+Creating a temperature trend line
+
+library(dplyr)
+library(readxl)
+library(ggplot2)
+library(zoo)- not necessary
+
+plot<- read_excel(file.choose())
+head(plot)
+
+daily_plot <- plot %>%
+  mutate(Date = as.Date(Date)) %>%
+  group_by(Date) %>%
+  summarise(
+    mean_temp = mean(wars, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    rollmean = rollmean(mean_temp, k = 7, fill = NA, align = "center")
+  )
+
+ggplot(daily_plot, aes(x = Date, y = mean_temp)) +
+  geom_line(
+    color = "blue",
+    linewidth = 0.6,
+    lineend = "round",
+    linejoin = "round"
+  ) +
+  geom_line(
+    aes(y = rollmean),
+    color = "red",
+    linewidth = 0.6,
+    na.rm = TRUE
+  ) +
+  scale_y_continuous(
+    limits = c(-7, 30),
+    breaks = seq(-5, 30, by = 5)
+  ) +
+  scale_x_date(
+    date_breaks = "3 days",
+    date_labels = "%b %d"
+  ) +
+  labs(
+    x = "Duration",
+    y = "Temperature (°C)"
+  ) +
+  theme_classic() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 18),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
