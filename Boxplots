@@ -1,0 +1,46 @@
+# Boxplot (Each box per data)
+
+library(readxl)
+stand<- read_excel(file.choose())
+head(stand)
+
+mean_data <- stand %>%
+  group_by(Variety) %>%
+  summarise(
+    mean_stand = mean(SC_Oct21, na.rm = TRUE),
+    .groups = "drop"
+  )
+range(stand$SC_Oct21, na.rm = TRUE)
+
+library(dplyr)
+library(ggplot2)
+stand$Variety <- as.factor(stand$Variety)
+rec_stand <- 247100 
+
+stand$Variety <- factor(stand$Variety, levels = unique(stand$Variety))
+
+ggplot(stand, aes(x = Variety, y = SC_Oct21, fill = Variety)) +
+  geom_boxplot(
+    width = 0.65,
+    alpha = 0.8,
+    outlier.shape = NA, 
+    color = "black"
+  ) +
+  scale_fill_manual(values = c(
+    "#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00",
+    "#FFFF33", "#A65628", "#F781BF", "#999999", "#00CED1", "#7B68EE"
+  ))+
+  geom_hline(yintercept = 247100, color = "red", linewidth = 1.2)+
+  theme_classic(base_size = 14) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust=1)
+  )+
+  labs(
+    x = "Soybean Variety",
+    y = "Stand Count Recorded on October 21, 2025"
+  )
+
+
+# Boxplot (Two box per data)
