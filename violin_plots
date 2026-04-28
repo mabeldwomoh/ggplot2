@@ -1,4 +1,4 @@
-Stand Count Violin without boxplots
+#Stand Count Violin without boxplots
 
 library(readxl)
 sd <- read_excel(file.choose())
@@ -11,6 +11,37 @@ sd$Hectares <- as.numeric(sd$Hectares)
 options(scipen = 999)
 ggplot(sd, aes(x=Variety,y= Hectares, fill=Variety))+
   geom_violin(trim = FALSE, alpha=0.7, color="black")+
+  geom_jitter(inherit.aes=FALSE,
+              aes(x=Variety, y=Hectares),
+              color="black",
+              width = 0.08, 
+              size=1.5, 
+              alpha=0.9)+
+  scale_y_continuous(
+    labels = scales::comma)+
+  scale_fill_manual(values = c("tomato","royalblue","limegreen","red","gold","purple","green","deeppink","blue","orange","violet"))+
+  theme_classic()+
+  theme(legend.position = "none")+
+  labs(
+    x="Soybean Variety",
+    y= "Cummulative Stand Count (plants/ha)"
+  )
+
+
+#Stand Count Violin with boxplots
+
+library(readxl)
+sd <- read_excel(file.choose())
+head(sd)
+
+library(ggplot2)
+sd$Variety <- as.factor(sd$Variety)
+sd$Hectares <- as.numeric(sd$Hectares)
+
+options(scipen = 999)
+ggplot(sd, aes(x=Variety,y= Hectares, fill=Variety))+
+  geom_violin(trim = FALSE, alpha=0.7, color="black")+
+  geom_boxplot(width=0.12, fill="white", outlier.shape = NA)+
   geom_jitter(inherit.aes=FALSE,
               aes(x=Variety, y=Hectares),
               color="black",
