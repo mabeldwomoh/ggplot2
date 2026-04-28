@@ -1,0 +1,50 @@
+# Bar Chart/Plot with Signficance lines and error bars
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+summary_data <- sd %>%
+  group_by(Variety, Date) %>%
+  summarise(
+    total = sum(Hectares, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+letters_data <- summary_data %>%
+  group_by(Variety) %>%
+  summarise(
+    bar_top = sum(total),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    letters = c("cd", "abc", "ab", "ab", "a", "bcd", "d", "abcd", "abcd", "d", "ab"),
+    line_bottom = bar_top - 200000,   
+    line_top    = bar_top + 90000,    
+    letter_y    = bar_top + 320000    
+  )
+
+ggplot(summary_data, aes(x = Variety, y = total, fill = Date)) +
+  geom_col(color = "black", width = 0.7) +
+  geom_errorbar(
+    data = letters_data,
+    aes(x = Variety, ymin = line_bottom, ymax = line_top),
+    inherit.aes = FALSE,
+    width = 0.2,        
+    linewidth = 0.7
+  ) +
+  
+  geom_text(
+    data = letters_data,
+    aes(x = Variety, y = letter_y, label = letters),
+    inherit.aes = FALSE,
+    size = 6,
+    fontface = "bold"
+  ) +
+  
+  scale_y_continuous(labels = comma) +
+  theme_classic() +
+  labs(
+    x = "Soybean Variety",
+    y = "Cumulative Stand Count (plants/ha)"
+  )
