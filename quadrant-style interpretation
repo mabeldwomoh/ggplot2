@@ -1,0 +1,73 @@
+library(dplyr)
+
+summary_var <- data %>%
+  group_by(Variety) %>%
+  summarise(
+    Moisture = mean(Moisture, na.rm = TRUE),
+    Survival = mean(Survival, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Survival))
+
+# Top 6
+top6 <- summary_var %>% slice(1:6)
+
+# Bottom 5 (excluding top6)
+bottom5 <- summary_var %>%
+  filter(!Variety %in% top6$Variety) %>%
+  slice_tail(n = 5)
+
+# Assign groups
+data <- data %>%
+  mutate(Group = case_when(
+    Variety %in% top6$Variety ~ "Top",
+    Variety %in% bottom5$Variety ~ "Low",
+    TRUE ~ "Other"
+  ))
+
+library(ggplot2)
+library(ggrepel)
+
+label_var <- bind_rows(top6, bottom5)
+
+ggplot(data, aes(x = Moisture, y = Survival, color = Group)) +
+  geom_point(size = 2.5, alpha = 1,
+             position = position_jitter(width = 0.4, height = 0.4)) +
+  
+  geom_smooth(aes(group = 1),
+              method = "lm", se = TRUE,
+              color = "black", fill = "pink") +
+  geom_vline(xintercept = mean_moist, linetype = "dashed", linewidth = 0.8) +
+  geom_hline(yintercept = mean_surv,  linetype = "dashed", linewidth = 0.8) +
+  
+  geom_text_repel(
+    data = label_var,
+    aes(x = Moisture, y = Survival, label = Variety),
+    inherit.aes = FALSE,
+    color = "black",
+    size = 2.7,
+    fontface = "bold",
+    nudge_y = 1.8,     move labels slightly upward
+    segment.color = NA, removes the connecting lines
+    show.legend = FALSE
+  )+
+  scale_color_manual(
+    name = "Freeze Response",
+    values = c(
+      "Top" = "red",
+      "Low" = "blue"
+    ),
+    breaks = c("Top", "Low"),
+    labels = c(
+      "Top" = "Higher survival",
+      "Low" = "Lower survival"
+    )
+  ) +
+  # Labels
+  labs(
+    x = "Moisture Content of One Cotyledon (%)",
+    y = "Survival Percentage (% Green Stand Count)",
+    color = "Variety"
+  ) +
+  
+  theme_classic()
